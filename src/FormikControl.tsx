@@ -5,15 +5,19 @@ import {
   FormGroup,
   FormLabel,
 } from 'react-bootstrap';
-import { FieldProps, useFormikContext, useField } from 'formik';
+import { useFormikContext, useField } from 'formik';
+import { ReplaceProps } from 'react-bootstrap/helpers';
 
-interface FormikControlProps extends FieldProps, FormControlProps {
-  ass: any;
+interface FormikControlBaseProps extends FormControlProps {
   name: string;
   label?: string;
   noFormGroup?: boolean;
   children?: React.ReactNode;
 }
+
+type FormikControlProps<As extends React.ElementType = 'input'> = {
+  as?: As;
+} & ReplaceProps<As, FormikControlBaseProps>;
 
 export function fieldToFormikControl({
   noFormGroup,
@@ -22,7 +26,7 @@ export function fieldToFormikControl({
   disabled,
   name,
   ...props
-}: FormikControlProps): FormControlProps {
+}: FormikControlBaseProps): FormControlProps {
   const { isSubmitting } = useFormikContext();
   const [field, meta] = useField(name);
 
@@ -39,18 +43,22 @@ export function fieldToFormikControl({
 
 export function fieldToFeedBack({
   name,
-}: FormikControlProps): string | undefined {
+}: FormikControlBaseProps): string | undefined {
   const [, { error }] = useField(name);
   return error;
 }
 
-export const FormikControl = (props: FormikControlProps) => {
+export const FormikControl = <As extends React.ElementType = 'input'>(
+  props: FormikControlProps<As>
+) => {
   const Core = (
     <>
       <FormLabel>{props.label}</FormLabel>
-      <FormControl as={props.ass} {...fieldToFormikControl(props)}>
+
+      <FormControl as={props.as} {...fieldToFormikControl(props)}>
         {props.children}
       </FormControl>
+
       <FormControl.Feedback type="invalid">
         {fieldToFeedBack(props)}
       </FormControl.Feedback>
@@ -60,4 +68,4 @@ export const FormikControl = (props: FormikControlProps) => {
   return props.noFormGroup ? Core : <FormGroup>{Core}</FormGroup>;
 };
 
-// export default FormikControl;
+export default FormikControl;
