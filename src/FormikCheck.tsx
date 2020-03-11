@@ -1,15 +1,21 @@
 import { useField, useFormikContext } from 'formik';
 import * as React from 'react';
 import { FormCheck, FormCheckProps, FormGroup } from 'react-bootstrap';
+import { ReplaceProps } from 'react-bootstrap/helpers';
 
-interface FormikCheckProps extends FormCheckProps {
+interface FormikCheckBaseProps extends FormCheckProps {
   name: string;
 }
 
-export function fieldToFormikCheck({
+type FormikCheckProps<As extends React.ElementType = 'input'> = {
+  as?: As;
+} & ReplaceProps<As, FormikCheckBaseProps>;
+
+export function fieldToFormCheck({
   disabled,
-  name,
+  custom,
   id,
+  name,
   ...props
 }: FormikCheckProps): FormCheckProps {
   const { isSubmitting } = useFormikContext();
@@ -19,19 +25,26 @@ export function fieldToFormikCheck({
   const showError = meta.touched && !!fieldError;
   const [, { error }] = useField(name);
 
+  if (props.value && field.value) {
+    field.checked = props.value.toString() === field.value.toString();
+  }
+
   return {
-    ...props,
     ...field,
-    isInvalid: showError,
+    ...props,
     disabled: disabled ?? isSubmitting,
+    custom: custom ?? true,
+    id: id ?? `check-${name}${props.value ? '-' + props.value : ''}`,
+    isInvalid: showError,
     feedback: error,
-    id: id ?? 'check-' + id,
   };
 }
 
-export const FormikCheck = (props: FormikCheckProps) => (
+export const FormikCheck = <As extends React.ElementType = 'input'>(
+  props: FormikCheckProps<As>
+) => (
   <FormGroup>
-    <FormCheck {...fieldToFormikCheck(props)} />
+    <FormCheck {...fieldToFormCheck(props)} />
   </FormGroup>
 );
 

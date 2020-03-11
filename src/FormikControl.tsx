@@ -1,11 +1,11 @@
+import { useField, useFormikContext } from 'formik';
 import * as React from 'react';
 import {
-  FormControlProps,
   FormControl,
+  FormControlProps,
   FormGroup,
   FormLabel,
 } from 'react-bootstrap';
-import { useFormikContext, useField } from 'formik';
 import { ReplaceProps } from 'react-bootstrap/helpers';
 
 interface FormikControlBaseProps extends FormControlProps {
@@ -19,7 +19,7 @@ type FormikControlProps<As extends React.ElementType = 'input'> = {
   as?: As;
 } & ReplaceProps<As, FormikControlBaseProps>;
 
-export function fieldToFormikControl({
+export function fieldToFormControl({
   noFormGroup,
   children,
   label,
@@ -34,8 +34,8 @@ export function fieldToFormikControl({
   const showError = meta.touched && !!fieldError;
 
   return {
-    ...props,
     ...field,
+    ...props,
     isInvalid: showError,
     disabled: disabled ?? isSubmitting,
   };
@@ -55,7 +55,7 @@ export const FormikControl = <As extends React.ElementType = 'input'>(
     <>
       <FormLabel>{props.label}</FormLabel>
 
-      <FormControl as={props.as} {...fieldToFormikControl(props)}>
+      <FormControl as={props.as} {...fieldToFormControl(props)}>
         {props.children}
       </FormControl>
 
